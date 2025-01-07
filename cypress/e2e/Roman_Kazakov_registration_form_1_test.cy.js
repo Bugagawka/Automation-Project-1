@@ -36,7 +36,7 @@ describe("This is the first test suite, John Smith", () => {
     cy.get("#input_error_message").should("not.be.visible");
     cy.get("#password_error_message").should("have.css", "display", "none");
 
-    // Assert that success message is visible
+    // Assert that success message is visibl
     // next 2 lines check exactly the same, but using different approach
     cy.get("#success_message").should("be.visible");
     cy.get("#success_message").should("have.css", "display", "block");
