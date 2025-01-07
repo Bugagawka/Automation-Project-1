@@ -6,31 +6,41 @@ beforeEach(() => {
 Assignement 4: add content to the following tests
 */
 
+//Using Faker to create random valid data for tests
+const { faker } = require("@faker-js/faker");
+module.exports = {
+  lastName: faker.person.lastName(),
+  email: faker.internet.email(),
+};
+
+//Using function to make code more readable
+let password = "MyOnly1Password";
+
 describe("Functional tests", () => {
-  it.only("User can use only same both first and validation passwords", () => {
+  it("User can use only same both first and validation passwords", () => {
     // Add test steps for filling in only mandatory fields
-    cy.get("#username").type("Bugagawka");
-    cy.get("#email").type("bugagawka@mail.com");
+    cy.get("#username").type("Something");
+    cy.get("#email").type(faker.internet.email());
     cy.get('[name="name"]').type("Roman");
-    cy.get('[name="lastName"]').type("Kazakov");
+    cy.get('[name="lastName"]').type(faker.person.lastName());
     cy.get('[data-testid="phoneNumberTestId"]').type("123456789");
     // Type confirmation password which is different from first password
-    cy.get('input[name="password"]').type("Defender1");
-    cy.get('[name="confirm"]').type("Defender");
+    cy.get("#password").type(password);
+    cy.get("#confirm").type("MyOnly1Password2");
     // Assert that submit button is not enabled
     cy.get(".submit_button").should("be.disabled");
     // Assert that successful message is not visible
     cy.get("#success_message").should("not.be.visible");
     // Assert that error message is visible
-    cy.get("#input_error_message")
-      .should("be.visible")
-      .should("contain", "Mandatory input field is not valid or empty!");
+    cy.get("#password_error_message").should("be.visible");
+
     // Change the test, so the passwords would match
-    // Add assertion, that error message is not visible anymore
-    // Add assertion, that submit button is now enabled
+    cy.get("#confirm").clear().type(password);
     cy.get("h2").contains("Password").click();
+    // Add assertion, that error message is not visible anymore
+    cy.get("#password_error_message").should("not.be.visible");
+    // Add assertion, that submit button is now enabled
     cy.get(".submit_button").should("be.enabled");
-    cy.get(".submit_button").click();
   });
 
   it("User can submit form with all fields added", () => {

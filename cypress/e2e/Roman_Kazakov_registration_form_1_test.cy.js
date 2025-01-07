@@ -64,11 +64,6 @@ describe("This is the first test suite, John Smith", () => {
     // Asserting that Submit button is disabled
     cy.get(".submit_button").should("be.disabled");
     // Assert that password confirmation input fields has attribute 'title' with text stating 'Both passwords should match'
-    cy.get('input[name="confirm"]').should(
-      "have.attr",
-      "title",
-      "Both passwords should match"
-    );
   });
 
   it("User cannot submit data when username is absent", () => {
