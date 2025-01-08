@@ -121,7 +121,6 @@ describe("Visual tests", () => {
   });
 
   it("email format", () => {
-    //cy.get('input[name="email"]').should("have.attr", "pattern");
     cy.get('input[type="email"]').should("have.attr", "required");
     cy.get('input[type="email"]').type("invalid");
     cy.get('[ng-show="myForm.email.$error.email"]')
@@ -157,4 +156,114 @@ Task list:
     * add file functionlity(google yourself for solution!)
  */
 
-//discribe("Functional tests", () => {});
+//Using Faker to create random valid data for tests
+const { faker } = require("@faker-js/faker");
+module.exports = {
+  fullName: faker.person.fullName(),
+  email: faker.internet.email(),
+};
+
+//Used functions
+
+function AllFieldsFilled() {
+  //All fields are filled
+  MondatoryFieldsFilled();
+  cy.get('input[type="date"]')
+    .eq(0)
+    .type("2001-01-01")
+    .should("have.value", "2001-01-01");
+  cy.get('input[type="date"]')
+    .eq(1)
+    .type("2001-01-01")
+    .should("have.value", "2001-01-01");
+  cy.get('input[type="radio"]').eq(3).check().should("be.checked");
+}
+
+function MondatoryFieldsFilled() {
+  cy.reload();
+  cy.get("#name").clear().type(faker.person.fullName());
+  cy.get(".email").clear().type(faker.internet.email());
+  cy.get("#country").select("Estonia");
+  cy.get("#country>option").eq(2).should("be.selected"); //asserting selection was made
+  cy.get("#city").select("Tallinn");
+  cy.get("#city>option").eq(1).should("be.selected"); //asserting selection was made
+}
+
+function PoliciesAccepted() {
+  //Accepting (checking) policies
+  cy.get('input[type="checkbox"]').eq(0).check().should("be.checked");
+  cy.get('input[type="checkbox"]').eq(1).check().should("be.checked");
+}
+
+describe("Functional tests", () => {
+  it("all mandatory fields a selected", () => {
+    cy.get("#name").type(faker.person.fullName());
+    cy.get('[name="email"]').type(faker.internet.email());
+    cy.get("#country").select("Estonia");
+    cy.get("#country>option").eq(2).should("be.selected");
+    cy.get("#city").select("Tartu");
+    cy.get("#city>option").eq(3).should("be.selected");
+    cy.get('input[type="date"]')
+      .eq(0)
+      .type("2001-01-01")
+      .should("have.value", "2001-01-01");
+    cy.get('input[type="radio"]').eq(3).check().should("be.checked");
+    cy.get("#birthday")
+      .eq(0)
+      .type("2001-01-01")
+      .should("have.value", "2001-01-01");
+    cy.get('input[type="checkbox"]').eq(0).check().should("be.checked");
+    cy.get('input[type="checkbox"]').eq(1).check().should("be.checked");
+    cy.get("h2").contains("Birthday").click();
+    cy.get('input[type="submit"]').should("be.enabled");
+    cy.get('input[type="submit"]').click();
+  });
+
+  it("Registration submission Function", () => {
+    AllFieldsFilled();
+    PoliciesAccepted();
+    cy.get(":nth-child(2) > input").should("be.enabled");
+    cy.get(":nth-child(2) > input").click();
+    cy.get("body > div > h1")
+      .should("be.visible")
+      .should("contain", "Submission received");
+    cy.go("back");
+  });
+
+  it("Only mandatory fields and validations are filled in", () => {
+    MondatoryFieldsFilled();
+    cy.get(":nth-child(2) > input").should("not.be.enabled");
+    PoliciesAccepted();
+    cy.get(":nth-child(2) > input").should("be.enabled");
+    cy.get(":nth-child(2) > input").click();
+    cy.get("body > div > h1")
+      .should("be.visible")
+      .should("contain", "Submission received");
+    cy.go("back");
+  });
+
+  it("Mandatory fields and validations are absent", () => {
+    cy.get(":nth-child(2) > input").should("not.be.enabled");
+    PoliciesAccepted();
+    cy.get(":nth-child(2) > input").should("not.be.enabled");
+  });
+
+  //   it("File upload functionality", () => {
+  //     // Prepare a file to upload
+  //     const fileName = "test_file.txt";
+  //     const fileContent = "This is a test file for upload functionality.";
+  //     cy.writeFile(`cypress/fixtures/${fileName}`, fileContent);
+
+  //     cy.visit("cypress/fixtures/registration_form_3.html");
+  //     MondatoryFieldsFilled();
+  //     cy.get('input[type="checkbox"]').first().check();
+  //     cy.get('input[type="checkbox"]').last().check();
+  //     cy.get("#myFile").attachFile(fileName);
+  //     cy.get("#myFile").should("have.value", `C:\\fakepath\\${fileName}`);
+  //     cy.contains("button", "Submit file").click();
+  //     cy.get("h1").should("contain", "Submission received");
+
+  //     cy.go("back");
+  //     cy.log("Back again in registration form 3");
+  //   });
+});
